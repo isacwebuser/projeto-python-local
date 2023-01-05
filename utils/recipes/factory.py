@@ -31,7 +31,8 @@ def make_recipe():
         },
         'cover': {
             'url': 'https://loremflickr.com/%s/%s/food,cook' % rand_ratio(),
-        }
+        },
+        'category_id': fake.random_number(digits=2),
     }
 
 
