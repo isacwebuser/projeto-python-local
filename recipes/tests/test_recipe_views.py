@@ -1,11 +1,11 @@
-from django.test import TestCase
 from django.urls import resolve, reverse
 
 from recipes import views
-from recipes.models import Category, Recipe, User
+
+from .test_recipe_base import RecipeTestBase
 
 
-class RecipeViewsTest(TestCase):
+class RecipeViewsTest(RecipeTestBase):
 
     def test_recipe_view_home_function_ok(self):
         view = resolve(reverse('recipes:home'))
@@ -25,23 +25,7 @@ class RecipeViewsTest(TestCase):
                       response.content.decode('utf-8'))
 
     def test_recipe_home_template_load_recipes(self):
-        category = Category.objects.create(name='Category')
-        author = User.objects.create(first_name='teste_first', last_name='teste_last',
-                                     username='teste_first', password='i1s9a9c1', email='teste_first@teste.com')
-        Recipe.objects.create(
-            category=category,
-            author=author,
-            title='Recipe title',
-            description='Description ',
-            slug='recipe-slug',
-            preparation_time=10,
-            preparation_time_unit='Minutes',
-            servings=5,
-            servings_unit='Porções',
-            preparation_steps='Recipe preparation steps',
-            preparation_steps_is_html=False,
-            is_published=True,
-        )
+        self.make_recipe()
         response = self.client.get(reverse('recipes:home'))
         content = response.content.decode('utf-8')
         self.assertIn('Recipe title', content)
