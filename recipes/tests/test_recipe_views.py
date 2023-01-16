@@ -33,6 +33,12 @@ class RecipeViewsTest(RecipeTestBase):
         self.assertIn('Recipe title', content)
         self.assertEqual(len(response.context['recipes']), 1)
 
+    def test_recipe_home_template_dont_load_not_publish_recipes(self):
+        self.make_recipe(is_published=False)
+        response = self.client.get(reverse('recipes:home'))
+        self.assertIn('Modules not found here!',
+                      response.content.decode('utf-8'))
+
     def test_recipe_view_category_function_ok(self):
         view = resolve(reverse('recipes:category',
                        kwargs={'category_id': 1, }))
@@ -50,6 +56,12 @@ class RecipeViewsTest(RecipeTestBase):
         content = response.content.decode('utf-8')
         self.assertIn(needed_title, content)
 
+    def test_recipe_category_template_dont_load_not_publish(self):
+        recipe = self.make_recipe(is_published=False)
+        response = self.client.get(
+            reverse('recipes:category', args=(recipe.category.id,)))
+        self.assertEqual(response.status_code, 404)
+
     # @skip('Esse teste não precisa ser executado')
     def test_recipe_view_detail_function_ok(self):
         view = resolve(reverse('recipes:recipe', kwargs={'id': 1, }))
@@ -64,9 +76,15 @@ class RecipeViewsTest(RecipeTestBase):
         needed_title = 'This is  a title detail recipe'
         self.make_recipe(title=needed_title)
         response = self.client.get(
-            reverse('recipes:recipe', args={'id': 1, }))
+            reverse('recipes:recipe', kwargs={'id': '1', }))
         content = response.content.decode('utf-8')
         self.assertIn(needed_title, content)
+
+    def test_recipe_detail_template_dont_load_not_publish(self):
+        recipe = self.make_recipe(is_published=False)
+        response = self.client.get(
+            reverse('recipes:recipe', args=(recipe.id,)))
+        self.assertEqual(response.status_code, 404)
 
         # método para lembrar de adicionar mais informações
         # self.fail('Comando para lembrar de adicionar testes')
