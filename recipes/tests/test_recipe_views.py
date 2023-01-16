@@ -1,3 +1,5 @@
+# from unittest import skip
+
 from django.urls import resolve, reverse
 
 from recipes import views
@@ -41,6 +43,14 @@ class RecipeViewsTest(RecipeTestBase):
                                            kwargs={'category_id': 10000, }))
         self.assertEqual(response.status_code, 404)
 
+    def test_recipe_category_template_load_recipes(self):
+        needed_title = 'This is  a title category'
+        self.make_recipe(title=needed_title)
+        response = self.client.get(reverse('recipes:category', args='1',))
+        content = response.content.decode('utf-8')
+        self.assertIn(needed_title, content)
+
+    # @skip('Esse teste não precisa ser executado')
     def test_recipe_view_detail_function_ok(self):
         view = resolve(reverse('recipes:recipe', kwargs={'id': 1, }))
         self.assertIs(view.func, views.recipe)
@@ -49,3 +59,14 @@ class RecipeViewsTest(RecipeTestBase):
         response = self.client.get(
             reverse('recipes:recipe', kwargs={'id': 100000, }))
         self.assertEqual(response.status_code, 404)
+
+    def test_recipe_detail_template_load_correct_recipe(self):
+        needed_title = 'This is  a title detail recipe'
+        self.make_recipe(title=needed_title)
+        response = self.client.get(
+            reverse('recipes:recipe', args={'id': 1, }))
+        content = response.content.decode('utf-8')
+        self.assertIn(needed_title, content)
+
+        # método para lembrar de adicionar mais informações
+        # self.fail('Comando para lembrar de adicionar testes')
